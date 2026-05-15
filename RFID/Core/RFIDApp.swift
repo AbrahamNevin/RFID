@@ -1,21 +1,18 @@
-//
-//  RFIDApp.swift
-//  RFID
-//
-//  Created by Nevin Abraham on 15/05/26.
-//
-
 import SwiftUI
 import Combine
 
 @main
 struct RFIDApp: App {
-    @StateObject private var appViewModel = AppViewModel()
+    @StateObject private var appState = AppState()
+    @StateObject private var container = DependencyContainer.shared
+    @StateObject private var router = AppRouter()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(appViewModel)
+                .environmentObject(appState)
+                .environmentObject(container)
+                .environmentObject(router)
                 .preferredColorScheme(.dark)
         }
     }

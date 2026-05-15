@@ -1,34 +1,64 @@
 import SwiftUI
 
-enum AtelierTheme {
+struct AtelierTheme {
     // MARK: - Colors
-    static let backgroundPrimary = Color(hex: "#0F0B09")
-    static let backgroundDeep = Color(hex: "#1A1412")
-    static let accentGold = Color(hex: "#C9A96E")
-    static let success = Color(hex: "#4CBF73")
-    static let error = Color(hex: "#D94D4D")
-    static let textPrimary = Color(hex: "#FFFFFF")
-    static let textSecondary = Color(hex: "#BDB0A6")
+    struct Colors {
+        static let backgroundPrimary = Color(hex: "#0F0B09")
+        static let backgroundDeep = Color(hex: "#1A1412")
+        static let accentGold = Color(hex: "#C9A96E")
+        static let success = Color(hex: "#4CBF73")
+        static let error = Color(hex: "#D94D4D")
+        static let textPrimary = Color(hex: "#FFFFFF")
+        static let textSecondary = Color(hex: "#BDB0A6")
+    }
+    
+    // MARK: - Layout
+    struct Layout {
+        static let spacingXS: CGFloat = 4
+        static let spacingS: CGFloat = 8
+        static let spacingM: CGFloat = 16
+        static let spacingL: CGFloat = 24
+        static let spacingXL: CGFloat = 32
+        
+        static let cardRadius: CGFloat = 20
+        static let buttonRadius: CGFloat = 12
+    }
     
     // MARK: - Gradients
-    static let luxuryGradient = LinearGradient(
-        gradient: Gradient(colors: [accentGold, accentGold.opacity(0.6)]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+    struct Gradients {
+        static let luxuryGold = LinearGradient(
+            gradient: Gradient(colors: [Colors.accentGold, Colors.accentGold.opacity(0.6)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let glass = LinearGradient(
+            gradient: Gradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.02)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
     
-    static let glassGradient = LinearGradient(
-        gradient: Gradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.02)]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+    // MARK: - Animations
+    struct Animation {
+        static let standardSpring = SwiftUI.Animation.spring(response: 0.6, dampingFraction: 0.8)
+        static let quickSpring = SwiftUI.Animation.spring(response: 0.4, dampingFraction: 0.7)
+    }
     
-    // MARK: - Spacing
-    static let spacingXS: CGFloat = 4
-    static let spacingS: CGFloat = 8
-    static let spacingM: CGFloat = 16
-    static let spacingL: CGFloat = 24
-    static let spacingXL: CGFloat = 32
+    // Static accessors for backward compatibility
+    static let backgroundPrimary = Colors.backgroundPrimary
+    static let backgroundDeep = Colors.backgroundDeep
+    static let accentGold = Colors.accentGold
+    static let success = Colors.success
+    static let error = Colors.error
+    static let textPrimary = Colors.textPrimary
+    static let textSecondary = Colors.textSecondary
+    
+    static let spacingXS = Layout.spacingXS
+    static let spacingS = Layout.spacingS
+    static let spacingM = Layout.spacingM
+    static let spacingL = Layout.spacingL
+    static let spacingXL = Layout.spacingXL
 }
 
 extension Color {

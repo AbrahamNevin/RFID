@@ -1,78 +1,106 @@
 import SwiftUI
 
 struct BoutiqueManagerDashboard: View {
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AtelierTheme.spacingL) {
                 LuxuryHeader(title: "Maison 01 Command Center", subtitle: "Boutique Management")
                 
                 // Quick Actions
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: AtelierTheme.spacingM) {
-                        QuickActionBtn(title: "Launch Scan", icon: "antenna.radiowaves.left.and.right")
-                        QuickActionBtn(title: "VIP Visit", icon: "star.fill")
-                        QuickActionBtn(title: "Transfers", icon: "arrow.left.arrow.right")
-                        QuickActionBtn(title: "Event Mode", icon: "sparkles")
-                    }
-                    .padding(.horizontal, AtelierTheme.spacingL)
-                }
-                .padding(.horizontal, -AtelierTheme.spacingL)
+                StoreQuickActions()
                 
                 // Live Alerts
-                GlassCard(glowColor: AtelierTheme.error.opacity(0.15)) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("CRITICAL ALERT")
-                                .font(AtelierTypography.secondaryText(12))
-                                .foregroundColor(AtelierTheme.error)
-                                .kerning(1)
-                            Text("Unauthorized movement detected in Vault B.")
-                                .font(AtelierTypography.bodyText(14))
-                                .foregroundColor(AtelierTheme.textPrimary)
-                        }
-                        Spacer()
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(AtelierTheme.error)
-                            .font(.title2)
-                    }
-                }
+                AlertPanel()
                 
                 // Appointments
-                VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
-                    HStack {
-                        Text("TODAY'S APPOINTMENTS")
-                            .font(AtelierTypography.secondaryText(14))
-                            .foregroundColor(AtelierTheme.textSecondary)
-                        Spacer()
-                        Text("View All")
-                            .font(AtelierTypography.secondaryText(12))
-                            .foregroundColor(AtelierTheme.accentGold)
-                    }
-                    
-                    ForEach(MockDataStore.shared.appointments) { appointment in
-                        AppointmentCard(appointment: appointment)
-                    }
-                }
+                UpcomingAppointmentsSection()
                 
                 // Inventory Overview
-                GlassCard {
-                    VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
-                        Text("STORE INVENTORY OVERVIEW")
-                            .font(AtelierTypography.secondaryText(14))
-                            .foregroundColor(AtelierTheme.textSecondary)
-                        
-                        HStack(spacing: 40) {
-                            InventoryStat(label: "In Stock", value: "1,240", color: AtelierTheme.success)
-                            InventoryStat(label: "On Display", value: "342", color: AtelierTheme.accentGold)
-                            InventoryStat(label: "In Service", value: "18", color: AtelierTheme.textSecondary)
-                        }
-                    }
-                }
+                StoreInventoryStatusCard()
             }
             .padding(.horizontal, AtelierTheme.spacingL)
             .padding(.bottom, 30)
         }
         .background(AtelierTheme.backgroundPrimary.ignoresSafeArea())
+    }
+}
+
+// MARK: - Sub-Components
+
+struct StoreQuickActions: View {
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AtelierTheme.spacingM) {
+                QuickActionBtn(title: "Launch Scan", icon: "antenna.radiowaves.left.and.right")
+                QuickActionBtn(title: "VIP Visit", icon: "star.fill")
+                QuickActionBtn(title: "Transfers", icon: "arrow.left.arrow.right")
+                QuickActionBtn(title: "Event Mode", icon: "sparkles")
+            }
+            .padding(.horizontal, AtelierTheme.spacingL)
+        }
+        .padding(.horizontal, -AtelierTheme.spacingL)
+    }
+}
+
+struct AlertPanel: View {
+    var body: some View {
+        GlassCard(glowColor: AtelierTheme.error.opacity(0.15)) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("CRITICAL ALERT")
+                        .font(AtelierTypography.secondaryText(12))
+                        .foregroundColor(AtelierTheme.error)
+                        .kerning(1)
+                    Text("Unauthorized movement detected in Vault B.")
+                        .font(AtelierTypography.bodyText(14))
+                        .foregroundColor(AtelierTheme.textPrimary)
+                }
+                Spacer()
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(AtelierTheme.error)
+                    .font(.title2)
+            }
+        }
+    }
+}
+
+struct UpcomingAppointmentsSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
+            HStack {
+                Text("TODAY'S APPOINTMENTS")
+                    .font(AtelierTypography.secondaryText(14))
+                    .foregroundColor(AtelierTheme.textSecondary)
+                Spacer()
+                Text("View All")
+                    .font(AtelierTypography.secondaryText(12))
+                    .foregroundColor(AtelierTheme.accentGold)
+            }
+            
+            ForEach(MockDataStore.shared.appointments) { appointment in
+                AppointmentCard(appointment: appointment)
+            }
+        }
+    }
+}
+
+struct StoreInventoryStatusCard: View {
+    var body: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
+                Text("STORE INVENTORY OVERVIEW")
+                    .font(AtelierTypography.secondaryText(14))
+                    .foregroundColor(AtelierTheme.textSecondary)
+                
+                HStack(spacing: 40) {
+                    InventoryStat(label: "In Stock", value: "1,240", color: AtelierTheme.success)
+                    InventoryStat(label: "On Display", value: "342", color: AtelierTheme.accentGold)
+                    InventoryStat(label: "In Service", value: "18", color: AtelierTheme.textSecondary)
+                }
+            }
+        }
     }
 }
 

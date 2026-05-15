@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @ObservedObject var viewModel: AppViewModel
+    @EnvironmentObject var appState: AppState
     @State private var appearanceOpacity: Double = 0
     @State private var roleCardOffsets: [CGFloat] = [100, 100, 100, 100, 100]
     
@@ -45,7 +45,7 @@ struct OnboardingView: View {
                     VStack(spacing: AtelierTheme.spacingM) {
                         ForEach(Array(UserRole.allCases.enumerated()), id: \.element.id) { index, role in
                             RoleSelectionCard(role: role) {
-                                viewModel.selectRole(role)
+                                appState.selectRole(role)
                             }
                             .offset(y: roleCardOffsets[index])
                             .opacity(appearanceOpacity)

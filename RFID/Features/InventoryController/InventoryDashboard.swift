@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct InventoryControllerDashboard: View {
-    @StateObject var rfidService = RFIDService()
+    @EnvironmentObject var container: DependencyContainer
     @State private var scanAnimation = false
     
     var body: some View {
@@ -13,81 +13,102 @@ struct InventoryControllerDashboard: View {
             .padding(.horizontal, AtelierTheme.spacingL)
             
             // Scan Control Card
-            GlassCard(glowColor: rfidService.isScanning ? AtelierTheme.success.opacity(0.3) : AtelierTheme.accentGold.opacity(0.1)) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(rfidService.isScanning ? "SCANNING ACTIVE" : "SCANNER STANDBY")
-                            .font(AtelierTypography.secondaryText(12))
-                            .foregroundColor(rfidService.isScanning ? AtelierTheme.success : AtelierTheme.accentGold)
-                            .kerning(1)
-                        Text(rfidService.isScanning ? "\(rfidService.scanStream.count) tags detected in session" : "Ready for cycle count")
-                            .font(AtelierTypography.bodyText(14))
-                            .foregroundColor(AtelierTheme.textPrimary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        rfidService.toggleScan()
-                        withAnimation(rfidService.isScanning ? .linear(duration: 2).repeatForever(autoreverses: false) : .default) {
-                            scanAnimation = rfidService.isScanning
-                        }
-                    }) {
-                        ZStack {
-                            Circle()
-                                .stroke(rfidService.isScanning ? AtelierTheme.success : AtelierTheme.accentGold, lineWidth: 2)
-                                .frame(width: 60, height: 60)
-                            
-                            if rfidService.isScanning {
-                                Circle()
-                                    .stroke(AtelierTheme.success, lineWidth: 2)
-                                    .frame(width: 60, height: 60)
-                                    .scaleEffect(scanAnimation ? 1.5 : 1.0)
-                                    .opacity(scanAnimation ? 0 : 1)
-                            }
-                            
-                            Image(systemName: rfidService.isScanning ? "stop.fill" : "play.fill")
-                                .font(.title3)
-                                .foregroundColor(rfidService.isScanning ? AtelierTheme.error : AtelierTheme.success)
-                        }
-                    }
-                    .onChange(of: rfidService.isScanning) { newValue in
-                        if newValue {
-                            withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                                scanAnimation = true
-                            }
-                        } else {
-                            scanAnimation = false
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, AtelierTheme.spacingL)
-            .padding(.bottom, AtelierTheme.spacingM)
+            RFIDScanControlCard(rfidService: container.rfidService)
             
             // Live Stream
-            VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
-                Text("REAL-TIME RFID STREAM")
-                    .font(AtelierTypography.secondaryText(12))
-                    .foregroundColor(AtelierTheme.textSecondary)
-                    .padding(.horizontal, AtelierTheme.spacingL)
-                
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 8) {
-                            ForEach(rfidService.scanStream) { event in
-                                RFIDEventRow(event: event)
-                                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
-                            }
-                        }
-                        .padding(.horizontal, AtelierTheme.spacingL)
-                    }
-                }
-            }
+            RFIDEventStreamPanel(rfidService: container.rfidService)
             
             Spacer()
         }
         .background(AtelierTheme.backgroundPrimary.ignoresSafeArea())
+    }
+}
+
+// MARK: - Sub-Components
+
+struct RFIDScanControlCard: View {
+    @ObservedObject var rfidService: RFIDService
+    @State private var scanAnimation = false
+    
+    var body: some View {
+        GlassCard(glowColor: rfidService.isScanning ? AtelierTheme.success.opacity(0.3) : AtelierTheme.accentGold.opacity(0.1)) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(rfidService.isScanning ? "SCANNING ACTIVE" : "SCANNER STANDBY")
+                        .font(AtelierTypography.secondaryText(12))
+                        .foregroundColor(rfidService.isScanning ? AtelierTheme.success : AtelierTheme.accentGold)
+                        .kerning(1)
+                    Text(rfidService.isScanning ? "\(rfidService.scanStream.count) tags detected in session" : "Ready for cycle count")
+                        .font(AtelierTypography.bodyText(14))
+                        .foregroundColor(AtelierTheme.textPrimary)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    rfidService.toggleScan()
+                }) {
+                    ZStack {
+                        Circle()
+                            .stroke(rfidService.isScanning ? AtelierTheme.success : AtelierTheme.accentGold, lineWidth: 2)
+                            .frame(width: 60, height: 60)
+                        
+                        if rfidService.isScanning {
+                            Circle()
+                                .stroke(AtelierTheme.success, lineWidth: 2)
+                                .frame(width: 60, height: 60)
+                                .scaleEffect(scanAnimation ? 1.5 : 1.0)
+                                .opacity(scanAnimation ? 0 : 1)
+                        }
+                        
+                        Image(systemName: rfidService.isScanning ? "stop.fill" : "play.fill")
+                            .font(.title3)
+                            .foregroundColor(rfidService.isScanning ? AtelierTheme.error : AtelierTheme.success)
+                    }
+                }
+                .onChange(of: rfidService.isScanning) { newValue in
+                    if newValue {
+                        withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                            scanAnimation = true
+                        }
+                    } else {
+                        scanAnimation = false
+                    }
+                }
+                .onAppear {
+                    if rfidService.isScanning {
+                        withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                            scanAnimation = true
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, AtelierTheme.spacingL)
+        .padding(.bottom, AtelierTheme.spacingM)
+    }
+}
+
+struct RFIDEventStreamPanel: View {
+    @ObservedObject var rfidService: RFIDService
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: AtelierTheme.spacingM) {
+            Text("REAL-TIME RFID STREAM")
+                .font(AtelierTypography.secondaryText(12))
+                .foregroundColor(AtelierTheme.textSecondary)
+                .padding(.horizontal, AtelierTheme.spacingL)
+            
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach(rfidService.scanStream) { event in
+                        RFIDEventRow(event: event)
+                            .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
+                    }
+                }
+                .padding(.horizontal, AtelierTheme.spacingL)
+            }
+        }
     }
 }
 
